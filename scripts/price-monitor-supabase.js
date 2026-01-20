@@ -10,17 +10,31 @@ const supabase = createClient(
 
 // Portfolio assets to monitor
 const ASSETS = [
-  { symbol: 'VOO', name: 'Vanguard S&P 500', type: 'ETF' },
+  { symbol: 'XDWD', name: 'MSCI World', type: 'ETF' },
+  { symbol: 'XAIX', name: 'AI/Tech', type: 'ETF' },
+  { symbol: 'ZPDF', name: 'Financials', type: 'ETF' },
+  { symbol: 'VVMX', name: 'Rare Earth', type: 'ETF' },
+  { symbol: 'PPFB', name: 'Gold', type: 'ETF' },
   { symbol: 'BTC', name: 'Bitcoin', type: 'CRYPTO' },
   { symbol: 'ETH', name: 'Ethereum', type: 'CRYPTO' },
-  { symbol: 'BND', name: 'Vanguard Bond ETF', type: 'ETF' },
   { symbol: 'SOL', name: 'Solana', type: 'CRYPTO' }
 ];
 
 // Yahoo Finance API
 async function fetchETFPrice(symbol) {
   try {
-    const response = await axios.get(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`);
+    // Map European ETFs to Yahoo Finance tickers
+    const tickerMapping = {
+      'XDWD': 'XDWD.MI',  // MSCI World - ticker italiano
+      'XAIX': 'XAIX.MI',  // AI/Tech - ticker italiano  
+      'ZPDF': 'ZPDF.DE',  // Financials - ticker tedesco
+      'VVMX': 'VVMX.DE', // Rare Earth - ticker tedesco
+      'PPFB': 'PPFB.SG',  // Gold - ticker di Singapore
+    };
+
+    const yahooSymbol = tickerMapping[symbol] || symbol;
+    
+    const response = await axios.get(`https://query1.finance.yahoo.com/v8/finance/chart/${yahooSymbol}`);
     const chart = response.data.chart.result[0];
     const currentPrice = chart.indicators.quote[0].close[chart.indicators.quote[0].close.length - 1];
     const previousClose = chart.meta.previousClose;
@@ -36,22 +50,18 @@ async function fetchETFPrice(symbol) {
   }
 }
 
-// CoinGecko API
+// Yahoo Finance API for Crypto (using -USD suffix)
 async function fetchCryptoPrice(symbol) {
   try {
-    const coinMap = {
-      'BTC': 'bitcoin',
-      'ETH': 'ethereum',
-      'SOL': 'solana'
-    };
-    
-    const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=${coinMap[symbol]}&vs_currency=usd&include_24hr_change=true`);
-    const data = response.data[coinMap[symbol]];
+    const response = await axios.get(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}-USD`);
+    const chart = response.data.chart.result[0];
+    const currentPrice = chart.indicators.quote[0].close[chart.indicators.quote[0].close.length - 1];
+    const previousClose = chart.meta.previousClose;
     
     return {
-      price: data.usd,
-      change: data.usd_24h_change > 0 ? data.usd * (data.usd_24h_change / 100) : data.usd * (data.usd_24h_change / 100),
-      changePercent: data.usd_24h_change
+      price: currentPrice,
+      change: currentPrice - previousClose,
+      changePercent: ((currentPrice - previousClose) / previousClose) * 100
     };
   } catch (error) {
     console.error(`Error fetching ${symbol}:`, error.message);
