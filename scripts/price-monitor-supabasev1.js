@@ -146,6 +146,7 @@ async function getLastDrawdownAlert(symbol) {
 // Send Telegram notification
 async function sendTelegramNotification(message) {
   try {
+    // Leggi direttamente dai secrets GitHub, non da .env
     const botToken = process.env.EXPO_PUBLIC_TELEGRAM_BOT_TOKEN;
     const chatId = process.env.EXPO_PUBLIC_TELEGRAM_CHAT_ID;
     
