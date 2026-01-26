@@ -42,7 +42,7 @@ jobs:
     - name: Run price monitoring
       run: |
         cd scripts
-        node price-monitor-supabase.js
+        node price-monitor-supabasev1.js
         
     - name: Upload logs
       if: always()
