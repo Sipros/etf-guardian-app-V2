@@ -15,9 +15,9 @@ const ASSETS = [
   { symbol: 'ZPDF', name: 'Financials', type: 'ETF' },
   { symbol: 'VVMX', name: 'Rare Earth', type: 'ETF' },
   { symbol: 'PPFB', name: 'Gold', type: 'ETF' },
-  { symbol: 'BTC', name: 'Bitcoin', type: 'CRYPTO' },
+  /**{ symbol: 'BTC', name: 'Bitcoin', type: 'CRYPTO' },
   { symbol: 'ETH', name: 'Ethereum', type: 'CRYPTO' },
-  { symbol: 'SOL', name: 'Solana', type: 'CRYPTO' }
+  { symbol: 'SOL', name: 'Solana', type: 'CRYPTO' }**/
 ];
 
 // Drawdown configuration per tipo di asset
