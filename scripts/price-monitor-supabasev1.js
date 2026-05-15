@@ -1,11 +1,17 @@
 const axios = require('axios');
 const { createClient } = require('@supabase/supabase-js');
+const ws = require('ws');
 require('dotenv').config();
 
 // Initialize Supabase
 const supabase = createClient(
   process.env.EXPO_PUBLIC_SUPABASE_URL,
-  process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
+  process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
+  {
+    realtime: {
+      transport: ws,
+    },
+  }
 );
 
 // Portfolio assets to monitor
