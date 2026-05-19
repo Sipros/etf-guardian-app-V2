@@ -253,8 +253,44 @@ async function checkDrawdownAlerts(asset, currentPrice) {
   }
 }
 
+function isBorsaAperta() {
+  const now = new Date();
+  
+  // Giorno della settimana in UTC
+  const giorno = now.getUTCDay(); // 0=domenica, 6=sabato
+  
+  // Weekend: chiusa
+  if (giorno === 0 || giorno === 6) return false;
+  
+  // Borsa Italiana/Euronext: 09:00-17:30 CET
+  // CET = UTC+1, CEST (ora legale) = UTC+2
+  // Controlliamo se siamo in ora legale
+  const mese = now.getUTCMonth() + 1; // 1-12
+  const giornoMese = now.getUTCDate();
+  
+  // Ora legale europea: ultima domenica marzo → ultima domenica ottobre
+  // Approssimazione sicura: aprile-ottobre = CEST (UTC+2), resto = CET (UTC+1)
+  const oraLegale = mese > 3 && mese < 10;
+  const offsetUTC = oraLegale ? 2 : 1;
+  
+  const oraUTC = now.getUTCHours();
+  const minuti = now.getUTCMinutes();
+  const oraInMinuti = oraUTC * 60 + minuti;
+  
+  // 09:00 CET/CEST in UTC
+  const apertura = (9 - offsetUTC) * 60;   // es. 07:00 UTC in estate
+  // 17:30 CET/CEST in UTC  
+  const chiusura = (17 - offsetUTC) * 60 + 30; // es. 15:30 UTC in estate
+  
+  return oraInMinuti >= apertura && oraInMinuti <= chiusura;
+}
+
 // Main monitoring function
 async function monitorPrices() {
+  if (!isBorsaAperta()) {
+  console.log(`Borsa chiusa alle ${new Date().toLocaleString('it-IT', {timeZone: 'Europe/Rome'})} - skip.`);
+  process.exit(0);
+}
   console.log(`🚀 Starting price monitoring at ${new Date().toISOString()}`);
   let successCount = 0;
 
