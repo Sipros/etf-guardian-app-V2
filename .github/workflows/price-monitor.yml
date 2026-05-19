@@ -4,9 +4,9 @@ name: ETF Guardian - Price Monitor
 # Runs every 5 minutes to check prices and send notifications
 
 on:
-  schedule:
+ # schedule:
     # Run every 5 minutes
-    - cron: '*/15 * * * *'
+ #   - cron: '*/15 * * * *'
   workflow_dispatch: # Allow manual trigger
 
 jobs:
